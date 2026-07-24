@@ -1,0 +1,97 @@
+version: "3.9"
+
+# Cashflow IQ — local development environment.
+# `make up` brings up everything; `make ingest` runs the batch pipeline on demand.
+# This is a DEV setup only — see /infra/terraform for the staging/cloud equivalent.
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: cashflowiq-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cashflowiq}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-localdevpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-cashflowiq}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./infra/sql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cashflowiq}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pipelines:
+    build:
+      context: ./apps/pipelines
+      dockerfile: Dockerfile
+    container_name: cashflowiq-pipelines
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cashflowiq}:${POSTGRES_PASSWORD:-localdevpassword}@postgres:5432/${POSTGRES_DB:-cashflowiq}
+    volumes:
+      - ./apps/pipelines:/app
+      - ./packages/schemas:/app/schemas
+    # No long-running process by default — invoked on demand via `make ingest`.
+    command: ["tail", "-f", "/dev/null"]
+
+  ml:
+    build:
+      context: ./apps/ml
+      dockerfile: Dockerfile
+    container_name: cashflowiq-ml
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cashflowiq}:${POSTGRES_PASSWORD:-localdevpassword}@postgres:5432/${POSTGRES_DB:-cashflowiq}
+      MODEL_ARTIFACT_PATH: /app/artifacts
+    volumes:
+      - ./apps/ml:/app
+      - ./packages/schemas:/app/schemas
+      - ml_artifacts:/app/artifacts
+    command: ["tail", "-f", "/dev/null"]
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: cashflowiq-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cashflowiq}:${POSTGRES_PASSWORD:-localdevpassword}@postgres:5432/${POSTGRES_DB:-cashflowiq}
+      MODEL_ARTIFACT_PATH: /app/artifacts
+      JWT_SECRET: ${JWT_SECRET:-local-dev-secret-do-not-use-in-prod}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/api:/app
+      - ./packages/schemas:/app/schemas
+      - ml_artifacts:/app/artifacts:ro
+
+  dashboard:
+    build:
+      context: ./apps/dashboard
+      dockerfile: Dockerfile
+    container_name: cashflowiq-dashboard
+    depends_on:
+      - api
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/dashboard:/app
+      - /app/node_modules
+
+volumes:
+  pg_data:
+  ml_artifacts:

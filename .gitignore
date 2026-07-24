@@ -1,0 +1,30 @@
+# ── Python ────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# ── Node ──────────────────────────────────────────
+node_modules/
+npm-debug.log*
+
+# ── Environment ───────────────────────────────────
+.env
+.env.local
+
+# ── IDE ───────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ── Output / data ─────────────────────────────────
+apps/pipelines/synth_data/output/*.csv
+
+# ── Docker / infra ────────────────────────────────
+*.log
