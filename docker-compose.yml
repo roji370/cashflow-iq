@@ -30,14 +30,14 @@ services:
       context: ./apps/pipelines
       dockerfile: Dockerfile
     container_name: cashflowiq-pipelines
+    working_dir: /workspace
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-cashflowiq}:${POSTGRES_PASSWORD:-localdevpassword}@postgres:5432/${POSTGRES_DB:-cashflowiq}
     volumes:
-      - ./apps/pipelines:/app
-      - ./packages/schemas:/app/schemas
+      - .:/workspace
     # No long-running process by default — invoked on demand via `make ingest`.
     command: ["tail", "-f", "/dev/null"]
 
@@ -46,16 +46,16 @@ services:
       context: ./apps/ml
       dockerfile: Dockerfile
     container_name: cashflowiq-ml
+    working_dir: /workspace
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-cashflowiq}:${POSTGRES_PASSWORD:-localdevpassword}@postgres:5432/${POSTGRES_DB:-cashflowiq}
-      MODEL_ARTIFACT_PATH: /app/artifacts
+      MODEL_ARTIFACT_PATH: /workspace/apps/ml/artifacts
     volumes:
-      - ./apps/ml:/app
-      - ./packages/schemas:/app/schemas
-      - ml_artifacts:/app/artifacts
+      - .:/workspace
+      - ml_artifacts:/workspace/apps/ml/artifacts
     command: ["tail", "-f", "/dev/null"]
 
   api:
@@ -63,19 +63,19 @@ services:
       context: ./apps/api
       dockerfile: Dockerfile
     container_name: cashflowiq-api
+    working_dir: /workspace
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-cashflowiq}:${POSTGRES_PASSWORD:-localdevpassword}@postgres:5432/${POSTGRES_DB:-cashflowiq}
-      MODEL_ARTIFACT_PATH: /app/artifacts
+      MODEL_ARTIFACT_PATH: /workspace/apps/ml/artifacts
       JWT_SECRET: ${JWT_SECRET:-local-dev-secret-do-not-use-in-prod}
     ports:
       - "8000:8000"
     volumes:
-      - ./apps/api:/app
-      - ./packages/schemas:/app/schemas
-      - ml_artifacts:/app/artifacts:ro
+      - .:/workspace
+      - ml_artifacts:/workspace/apps/ml/artifacts:ro
 
   dashboard:
     build:
