@@ -1,7 +1,3 @@
-NOTE FOR PHASE A ONLY: We are deliberately building a minimal walking skeleton right now.
-Skip validation, auth, idempotency, and error handling unless explicitly asked — favor the
-simplest possible working code over robustness. This will be replaced in Phase B onward.
-
 # AGENTS.md — Cashflow IQ
 
 Standing instructions for any AI coding agent (Antigravity, Cursor, Claude Code, or otherwise)
