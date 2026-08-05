@@ -1,0 +1,17 @@
+/* Phase A walking skeleton — minimal reset, no polish needed */
+body {
+  margin: 0;
+  background: #fafafa;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+td {
+  padding: 6px 12px;
+}
