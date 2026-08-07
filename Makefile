@@ -1,4 +1,4 @@
-.PHONY: up down logs ingest test test-pipelines test-ml test-api test-dashboard health lint
+.PHONY: up down logs pipeline ingest test test-pipelines test-ml test-api test-dashboard health lint
 
 ## Bring up the full local environment
 up:
@@ -19,12 +19,22 @@ down-clean:
 logs:
 	docker compose logs -f
 
-## Run the ingestion + nightly feature batch job on demand
+## Run the full data pipeline: generate → ingest → compute features
+pipeline:
+	docker compose exec pipelines python -m apps.pipelines.synth_data.generate
+	docker compose exec pipelines python -m apps.pipelines.ingest.run \
+		--customers apps/pipelines/synth_data/output/customers.csv \
+		--transactions apps/pipelines/synth_data/output/transactions.csv \
+		--labels apps/pipelines/synth_data/output/labels.csv
+	docker compose exec pipelines python -m apps.pipelines.feature_store.run_nightly_features
+
+## Run just ingestion + feature computation (assumes CSVs already generated)
 ingest:
-	docker compose exec pipelines python -m pipelines.ingest.run \
-		--customers /app/data/customers.csv \
-		--transactions /app/data/transactions.csv
-	docker compose exec pipelines python -m pipelines.feature_store.run_nightly_features
+	docker compose exec pipelines python -m apps.pipelines.ingest.run \
+		--customers apps/pipelines/synth_data/output/customers.csv \
+		--transactions apps/pipelines/synth_data/output/transactions.csv \
+		--labels apps/pipelines/synth_data/output/labels.csv
+	docker compose exec pipelines python -m apps.pipelines.feature_store.run_nightly_features
 
 ## Run full test suite across all apps
 test: test-pipelines test-ml test-api test-dashboard
