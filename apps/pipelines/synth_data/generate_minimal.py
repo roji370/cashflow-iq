@@ -1,5 +1,9 @@
 """Minimal synthetic data generator for the walking skeleton.
 
+DEPRECATED: This module is superseded by apps.pipelines.synth_data.generate,
+which generates 8 personas with 12 months of history and behavioral signals.
+Use `python -m apps.pipelines.synth_data.generate` instead.
+
 Generates one 'Stable Salaried' persona with ~25 transactions over 3 months.
 Phase A only — will be replaced by a richer multi-persona generator in Phase B.
 """

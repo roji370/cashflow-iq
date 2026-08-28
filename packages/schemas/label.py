@@ -1,21 +1,20 @@
 """Label schema for Cashflow IQ.
 
-Conversion labels per customer-product pair, used as the training target
-for intent models. Ingested from synthetic label CSVs via the ingest pipeline.
+Ground truth for model training — tracks whether a customer converted on a
+specific loan product. Added in Phase B.
 """
 
 from pydantic import BaseModel
 
 
 class Label(BaseModel):
-    """Conversion label for a customer-product pair.
+    """Per-customer, per-product conversion ground truth.
 
-    Attributes:
-        customer_id: The customer identifier.
-        product: Loan product type (e.g., 'home_loan', 'auto_loan').
-        converted: Whether the customer converted (accepted a loan offer).
+    Used for supervised model training in Phase C. Generated synthetically
+    in Phase B with noise to target AUC ~0.75–0.85.
     """
 
     customer_id: str
     product: str
     converted: bool
+

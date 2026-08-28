@@ -1,7 +1,7 @@
 """Cashflow IQ shared schemas — source of truth for all data contracts.
 
 Re-exports all schema classes for convenient imports:
-    from packages.schemas import Customer, Transaction, FeatureRecord, ...
+    from packages.schemas import Customer, Transaction, Label, FeatureRecord, ...
 """
 
 from packages.schemas.customer import Customer
@@ -27,3 +27,4 @@ __all__ = [
     "EligibilityResult",
     "ScoreResponse",
 ]
+
