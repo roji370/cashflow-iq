@@ -1,5 +1,9 @@
 """Minimal CSV-to-Postgres ingestion for the walking skeleton.
 
+DEPRECATED: This module is superseded by apps.pipelines.ingest.run,
+which adds Pydantic validation, idempotent upsert, and ingestion logging.
+Use `python -m apps.pipelines.ingest.run` instead.
+
 Reads customers.csv and transactions.csv from the synth_data output directory
 and inserts them into raw_customers and raw_transactions tables.
 
