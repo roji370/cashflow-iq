@@ -1,5 +1,12 @@
 """Compute minimal behavioral features from raw transactions.
 
+DEPRECATED: This module is superseded by:
+  - apps.pipelines.feature_store.behavioral_features (income, cash flow, debt features)
+  - apps.pipelines.feature_store.anomaly_detectors (subscription cleansing, liquidity pooling, bill shift)
+  - apps.pipelines.feature_store.run_nightly_features (orchestration + feature store)
+The three features here (avg_monthly_income, avg_monthly_outflow, savings_ratio) are now a
+subset of what behavioral_features.py produces.
+
 Phase A walking skeleton — computes three hand-picked features for a single customer:
   - avg_monthly_income: average of monthly credit totals
   - avg_monthly_outflow: average of monthly debit totals
