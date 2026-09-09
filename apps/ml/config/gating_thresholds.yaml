@@ -1,0 +1,13 @@
+# Gating thresholds for eligibility rules.
+#
+# Each product has its own set of thresholds. The eligibility gate module
+# loads this file and checks each customer against these thresholds before
+# a lead is surfaced to the RM.
+#
+# These are configurable — no code change required to adjust thresholds.
+# Any change should be logged in docs/DECISIONS.md with rationale.
+
+home_loan:
+  max_dti: 0.5
+  min_vintage_months: 6
+  min_confidence: 0.3
