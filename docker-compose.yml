@@ -71,6 +71,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-cashflowiq}:${POSTGRES_PASSWORD:-localdevpassword}@postgres:5432/${POSTGRES_DB:-cashflowiq}
       MODEL_ARTIFACT_PATH: /workspace/apps/ml/artifacts
       JWT_SECRET: ${JWT_SECRET:-local-dev-secret-do-not-use-in-prod}
+      ENVIRONMENT: ${ENVIRONMENT:-local}
     ports:
       - "8000:8000"
     volumes:
