@@ -2,9 +2,14 @@
 
 Phase C expanded schemas — adds quantile capacity estimates, eligibility
 gating results, SHAP-based reason codes, and a unified ScoreResponse envelope.
+
+Phase E: EligibilityResult changed from binary ``passed: bool`` to three-valued
+``gate_result: Literal["pass", "fail", "manual_review"]`` — closes a gap from
+Phase C's original spec where confidence/vintage failures should produce
+"manual_review" rather than a hard fail.
 """
 
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
@@ -57,9 +62,16 @@ class EligibilityResult(BaseModel):
     Eligibility gating is a separate, human-auditable rules module that runs
     independently of the ML models. It checks DTI, account vintage, and model
     confidence against configurable thresholds.
+
+    gate_result is one of three values:
+    - "pass": all rules satisfied, customer eligible for lead ranking.
+    - "fail": hard disqualification (e.g. DTI exceeds maximum).
+    - "manual_review": data-quality or confidence concern (e.g. low model
+      confidence, insufficient account vintage) — needs human review before
+      a decision can be made. Never treated as a rejection.
     """
 
-    passed: bool
+    gate_result: Literal["pass", "fail", "manual_review"]
     rules_checked: list[str]
     rules_failed: list[str]
 
