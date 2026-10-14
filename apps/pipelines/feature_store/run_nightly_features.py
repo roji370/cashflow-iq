@@ -155,6 +155,10 @@ def _write_features(
             if value is None:
                 continue  # skip features that couldn't be computed
 
+            # Convert numpy types to plain Python for psycopg2
+            if hasattr(value, "item"):
+                value = value.item()
+
             cur.execute(
                 """INSERT INTO features
                    (customer_id, feature_name, feature_value,
